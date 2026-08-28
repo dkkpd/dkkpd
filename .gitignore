@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+source-prepped.png
+source-photo.jpg
+assets/source-photo.jpg
+README.reference.md
