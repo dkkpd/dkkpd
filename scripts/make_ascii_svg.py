@@ -17,7 +17,7 @@ import html
 import os
 import sys
 
-from window_chrome import PORTRAIT_DISPLAY_W, append_titlebar, intrinsic_titlebar_h
+from window_chrome import PORTRAIT_DISPLAY_W, append_titlebar, display_height, intrinsic_titlebar_h
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # defaults to the prepped grayscale image (see prep_photo.py), which already has
@@ -69,7 +69,11 @@ COLS = max(70, min(150, int(ROWS * (img_w / img_h) * (CELL_H / CELL_W))))
 
 ART_W = COLS * CELL_W
 ART_H = ROWS * CELL_H
-CANVAS_W = ART_W + PAD * 2
+NATURAL_W = ART_W + PAD * 2
+# Widen the panel for layout balance; keep the ASCII art at its original on-screen size.
+LEGACY_DISPLAY_W = 370
+CANVAS_W = round(NATURAL_W * PORTRAIT_DISPLAY_W / LEGACY_DISPLAY_W)
+ART_X = (CANVAS_W - ART_W) / 2
 
 if SHARPEN:
     im = im.filter(ImageFilter.UnsharpMask(radius=2, percent=140, threshold=2))
@@ -108,11 +112,13 @@ ROWS = len(rows_txt)
 ART_H = ROWS * CELL_H
 TITLEBAR_H = intrinsic_titlebar_h(CANVAS_W, PORTRAIT_DISPLAY_W)
 CANVAS_H = round(TITLEBAR_H + ART_H + STATUS_H + PAD)
+DISP_W = PORTRAIT_DISPLAY_W
+DISP_H = display_height(CANVAS_W, CANVAS_H, DISP_W)
 
 # ---- 2. assemble SVG ------------------------------------------------------
 parts = []
 parts.append(
-    f'<svg xmlns="http://www.w3.org/2000/svg" width="{CANVAS_W}" height="{CANVAS_H}" '
+    f'<svg xmlns="http://www.w3.org/2000/svg" width="{DISP_W}" height="{DISP_H}" '
     f'viewBox="0 0 {CANVAS_W} {CANVAS_H}" font-family="ui-monospace, SFMono-Regular, '
     f'Menlo, Consolas, monospace">'
 )
@@ -139,7 +145,7 @@ for ry, line in enumerate(rows_txt):
     row_y = art_top + ry * CELL_H
     delay = ry * STAGGER
     safe = html.escape(line)
-    text = (f'<text xml:space="preserve" x="{PAD}" y="{y:.1f}" fill="{INK}" '
+    text = (f'<text xml:space="preserve" x="{ART_X}" y="{y:.1f}" fill="{INK}" '
             f'font-size="{font_size:.1f}" textLength="{ART_W}" lengthAdjust="spacing">{safe}</text>')
 
     if STATIC:
@@ -147,14 +153,14 @@ for ry, line in enumerate(rows_txt):
         continue
 
     parts.append(
-        f'<clipPath id="r{ry}"><rect x="{PAD}" y="{row_y:.1f}" height="{CELL_H}" width="0">'
+        f'<clipPath id="r{ry}"><rect x="{ART_X}" y="{row_y:.1f}" height="{CELL_H}" width="0">'
         f'<animate attributeName="width" from="0" to="{ART_W}" begin="{delay:.3f}s" '
         f'dur="{ROW_DUR:.2f}s" fill="freeze"/></rect></clipPath>'
     )
     parts.append(f'<g clip-path="url(#r{ry})">{text}</g>')
     parts.append(
         f'<rect y="{row_y+1:.1f}" width="{CELL_W}" height="{CELL_H-2}" fill="{CURSOR}" opacity="0">'
-        f'<animate attributeName="x" from="{PAD}" to="{PAD+ART_W}" begin="{delay:.3f}s" '
+        f'<animate attributeName="x" from="{ART_X}" to="{ART_X+ART_W}" begin="{delay:.3f}s" '
         f'dur="{ROW_DUR:.2f}s" fill="freeze"/>'
         f'<set attributeName="opacity" to="0.85" begin="{delay:.3f}s"/>'
         f'<set attributeName="opacity" to="0" begin="{delay+ROW_DUR:.3f}s"/></rect>'
@@ -164,4 +170,4 @@ parts.append("</svg>")
 svg = "".join(parts)
 with open(OUT, "w") as f:
     f.write(svg)
-print("wrote", OUT, len(svg), "bytes;", CANVAS_W, "x", CANVAS_H)
+print("wrote", OUT, len(svg), "bytes;", f"{DISP_W}x{DISP_H} (viewBox {CANVAS_W}x{CANVAS_H})")

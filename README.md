@@ -2,10 +2,10 @@
 
 <h3>About Me</h3>
 
-<table>
+<table align="center" cellspacing="0" cellpadding="0">
 <tr>
-<td valign="top"><img src="./dkkpd-ascii.svg" width="370" alt="Dhruv Kapadia — ASCII portrait" /></td>
-<td valign="top"><img src="./info-card.svg" width="490" alt="Dhruv Kapadia — neofetch card" /></td>
+<td valign="top"><img src="./dkkpd-ascii.svg" alt="Dhruv Kapadia — ASCII portrait" /></td>
+<td valign="top"><img src="./info-card.svg" alt="Dhruv Kapadia — neofetch card" /></td>
 </tr>
 </table>
 

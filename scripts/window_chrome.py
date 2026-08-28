@@ -1,8 +1,9 @@
 """Shared macOS-style window chrome for profile SVG panels."""
 
-# README display widths — chrome is sized for identical on-screen appearance.
-PORTRAIT_DISPLAY_W = 370
-INFO_DISPLAY_W = 490
+# README display widths — each About Me panel; together they match the heatmap (860px).
+PORTRAIT_DISPLAY_W = 430
+INFO_DISPLAY_W = 430
+ABOUT_ROW_W = PORTRAIT_DISPLAY_W + INFO_DISPLAY_W
 
 # Target on-screen sizes (px) when rendered at the widths above.
 VISUAL_TITLEBAR_H = 28
@@ -17,6 +18,10 @@ def intrinsic_px(visual_px, intrinsic_w, display_w):
 
 def intrinsic_titlebar_h(intrinsic_w, display_w, visual_h=VISUAL_TITLEBAR_H):
     return intrinsic_px(visual_h, intrinsic_w, display_w)
+
+
+def display_height(intrinsic_w, intrinsic_h, display_w):
+    return round(intrinsic_h * display_w / intrinsic_w)
 
 
 def append_titlebar(parts, canvas_w, title, *, display_w, intrinsic_w, pad, frame, title_color):

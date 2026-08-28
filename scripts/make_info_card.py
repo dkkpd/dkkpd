@@ -6,24 +6,13 @@ Each line fades and slides in with a short stagger.
 import os
 import re
 
-from window_chrome import INFO_DISPLAY_W, PORTRAIT_DISPLAY_W, append_titlebar, intrinsic_titlebar_h
+from window_chrome import INFO_DISPLAY_W, append_titlebar, intrinsic_titlebar_h
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "info-card.svg")
 PORTRAIT_SVG = os.path.join(HERE, "..", "dkkpd-ascii.svg")
 
-CANVAS_W = 490
-
-
-def portrait_display_height():
-    with open(PORTRAIT_SVG, encoding="utf-8") as f:
-        svg = f.read()
-    w = float(re.search(r'width="([0-9.]+)"', svg).group(1))
-    h = float(re.search(r'height="([0-9.]+)"', svg).group(1))
-    return h * PORTRAIT_DISPLAY_W / w
-
-
-CANVAS_H = round(portrait_display_height())
+CANVAS_W = INFO_DISPLAY_W
 WINDOW_TITLE = "About Me"
 PAD = 20
 
@@ -44,21 +33,29 @@ ROWS = [
 STATIC = bool(os.environ.get("STATIC"))
 LINE_H = 34
 BODY_FONT = 16
-TITLEBAR_H = intrinsic_titlebar_h(CANVAS_W, INFO_DISPLAY_W)
-START_Y = TITLEBAR_H + PAD + 28
+
+
+def portrait_display_height():
+    with open(PORTRAIT_SVG, encoding="utf-8") as f:
+        svg = f.read()
+    return int(float(re.search(r'height="([0-9.]+)"', svg).group(1)))
 
 
 def render():
+    canvas_h = portrait_display_height()
+    content_h = (len(ROWS) - 1) * LINE_H + BODY_FONT
+    start_y = (canvas_h - content_h) / 2 + BODY_FONT * 0.75
+
     parts = [
-        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CANVAS_W}" height="{CANVAS_H}" '
-        f'viewBox="0 0 {CANVAS_W} {CANVAS_H}" font-family="ui-monospace, SFMono-Regular, '
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{CANVAS_W}" height="{canvas_h}" '
+        f'viewBox="0 0 {CANVAS_W} {canvas_h}" font-family="ui-monospace, SFMono-Regular, '
         f'Menlo, Consolas, monospace">',
         "<defs>"
         f'<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">'
         f'<stop offset="0" stop-color="{BG2}"/><stop offset="1" stop-color="{BG}"/>'
         f"</linearGradient></defs>",
-        f'<rect width="{CANVAS_W}" height="{CANVAS_H}" rx="12" fill="url(#bg)"/>',
-        f'<rect x="0.5" y="0.5" width="{CANVAS_W-1}" height="{CANVAS_H-1}" rx="12" '
+        f'<rect width="{CANVAS_W}" height="{canvas_h}" rx="12" fill="url(#bg)"/>',
+        f'<rect x="0.5" y="0.5" width="{CANVAS_W-1}" height="{canvas_h-1}" rx="12" '
         f'fill="none" stroke="{FRAME}" stroke-width="1"/>',
     ]
 
@@ -69,10 +66,10 @@ def render():
     )
 
     for i, (label, color, value) in enumerate(ROWS):
-        y = START_Y + i * LINE_H
+        y = start_y + i * LINE_H
         delay = i * 0.12
         block = (
-            f'<text x="{PAD}" y="{y}" font-size="{BODY_FONT}">'
+            f'<text x="{PAD}" y="{y:.1f}" font-size="{BODY_FONT}">'
             f'<tspan fill="{color}">{label}</tspan>'
             f'<tspan fill="{MUTED}">: </tspan>'
             f'<tspan fill="{TEXT}">{value}</tspan></text>'
