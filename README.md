@@ -1,11 +1,5 @@
 <div align="center">
 
-<h3>Contributions</h3>
-
-<img src="./contrib-heatmap.svg" width="860" alt="Dhruv Kapadia's GitHub contribution graph — auto-refreshed daily" />
-
-<br><br>
-
 <h3>About Me</h3>
 
 <table>
@@ -14,6 +8,12 @@
 <td valign="top"><img src="./info-card.svg" width="490" alt="Dhruv Kapadia — neofetch card" /></td>
 </tr>
 </table>
+
+<br><br>
+
+<h3>Contributions</h3>
+
+<img src="./contrib-heatmap.svg" width="860" alt="Dhruv Kapadia's GitHub contribution graph — auto-refreshed daily" />
 
 <br><br>
 
